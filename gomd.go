@@ -20,13 +20,15 @@ import (
 )
 
 type inputArgs struct {
-	Port *int
-	File *string
+	Port   *int
+	File   *string
+	Daemon *bool
 }
 
 var args = inputArgs{
-	Port: kingpin.Flag("port", "Listening port used by webserver").Short('p').Default("1110").Int(),
-	File: kingpin.Arg("file", "Markdown file").String(),
+	Port:   kingpin.Flag("port", "Listening port used by webserver").Short('p').Default("1110").Int(),
+	File:   kingpin.Arg("file", "Markdown file").Required().String(),
+	Daemon: kingpin.Flag("daemon", "Run in daemon mode (don't open browser)").Short('d').Default("false").Bool(),
 }
 
 type editorView struct {
@@ -46,7 +48,7 @@ func newEditorView(filepath string, content string) *editorView {
 
 func main() {
 	// Parse command line arguments
-	kingpin.Version("0.0.1")
+	kingpin.Version("0.0.2")
 	kingpin.Parse()
 
 	// Prepare (optionally) embedded resources
@@ -70,10 +72,14 @@ func main() {
 	edit.GET("/*", editHandler)
 	edit.POST("/*", editHandlerPost)
 
-	go waitForServer()
+	if !*args.Daemon {
+		go waitForServer()
+	}
+
 	e.Logger.Fatal(e.Start(fmt.Sprintf("%d", *args.Port)))
 }
 
+// Template Make the golint warning about no comment for exported struct go away
 type Template struct {
 	templates *template.Template
 }
