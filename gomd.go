@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/GeertJohan/go.rice"
+	rice "github.com/GeertJohan/go.rice"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/nochso/gomd/eol"
@@ -20,15 +20,19 @@ import (
 )
 
 type inputArgs struct {
-	Port   *int
-	File   *string
-	Daemon *bool
+	Protocol *string
+	Host     *string
+	Port     *int
+	File     *string
+	Daemon   *bool
 }
 
 var args = inputArgs{
-	Port:   kingpin.Flag("port", "Listening port used by webserver").Short('p').Default("1110").Int(),
-	File:   kingpin.Arg("file", "Markdown file").Required().String(),
-	Daemon: kingpin.Flag("daemon", "Run in daemon mode (don't open browser)").Short('d').Default("false").Bool(),
+	Protocol: kingpin.Flag("protocol", "Application protocol (http or https) used by webserver").Short('a').Default("http").Enum("http", "https"),
+	Host:     kingpin.Flag("host", "Host address used by webserver").Short('h').Default("localhost").String(),
+	Port:     kingpin.Flag("port", "Listening port used by webserver").Short('p').Default("1110").Int(),
+	File:     kingpin.Arg("file", "Markdown file").Required().String(),
+	Daemon:   kingpin.Flag("daemon", "Run in daemon mode (don't open browser)").Short('d').Default("false").Bool(),
 }
 
 type editorView struct {
@@ -48,7 +52,7 @@ func newEditorView(filepath string, content string) *editorView {
 
 func main() {
 	// Parse command line arguments
-	kingpin.Version("0.0.2")
+	kingpin.Version("0.0.3")
 	kingpin.Parse()
 
 	// Prepare (optionally) embedded resources
@@ -76,7 +80,7 @@ func main() {
 		go waitForServer()
 	}
 
-	e.Logger.Fatal(e.Start(fmt.Sprintf("%d", *args.Port)))
+	e.Logger.Fatal(e.Start(fmt.Sprintf("%s:%d", *args.Host, *args.Port)))
 }
 
 // Template Make the golint warning about no comment for exported struct go away
@@ -93,11 +97,12 @@ func editHandler(c echo.Context) error {
 	var ev *editorView
 	ev, ok := c.Get("editorView").(*editorView)
 	if !ok {
-		log.Println("reading file")
-		filepath := c.ParamNames()[0]
+		filepath := c.Param("*")
+		log.Println("reading file", filepath)
 		content, err := ioutil.ReadFile(filepath)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "Unable to read requested file")
+			// return echo.NewHTTPError(http.StatusInternalServerError, "Unable to read requested file")
+			content = []byte(fmt.Sprintln("# New File"))
 		}
 		ev = newEditorView(filepath, string(content))
 		ev.CurrentLineEnding = eol.DetectDefault(ev.Content, eol.OSDefault())
@@ -107,7 +112,7 @@ func editHandler(c echo.Context) error {
 }
 
 func editHandlerPost(c echo.Context) error {
-	filepath := c.ParamNames()[0]
+	filepath := *args.File
 	eolIndex, _ := strconv.Atoi(c.FormValue("eol"))
 	content := c.FormValue("content")
 	convertedContent, err := eol.LineEnding(eolIndex).Apply(content)
@@ -122,7 +127,7 @@ func editHandlerPost(c echo.Context) error {
 
 func waitForServer() {
 	log.Printf("Waiting for listener on port %d", *args.Port)
-	url := fmt.Sprintf("http://localhost:%d/edit/%s", *args.Port, url.QueryEscape(*args.File))
+	url := fmt.Sprintf("%s://%s:%d/edit/%s", *args.Protocol, *args.Host, *args.Port, url.QueryEscape(*args.File))
 	for {
 		time.Sleep(time.Millisecond * 50)
 		resp, err := http.Get(url)

@@ -7,14 +7,15 @@
     <title>gomd: {{.File}}</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/normalize.css">
     <link rel="stylesheet" href="/static/css/font-awesome.min.css">
     <link rel="stylesheet" href="/static/css/simplemde.min.css">
     <script src="/static/js/simplemde.min.js"></script>
+    <script src="/static/js/jquery.min.js"></script>
 </head>
 <body>
-<script src="/static/js/jquery.min.js"></script>
 <form id="editorForm" method="post">
-    <textarea name="content">{{.Content}}</textarea>
+    <textarea class="simplemde" name="content">{{.Content}}</textarea>
     <button type="submit" id="btnsave">Save</button>
     <select name="eol">
         {{ $currentLineEnding := .CurrentLineEnding }}
@@ -25,19 +26,25 @@
 </form>
 <script>
 $(document).ready(function () {
-    var simplemde = new SimpleMDE({
-        autoDownloadFontAwesome: false,
-        spellChecker: false
-    });
+    $("textarea.simplemde").each(function(){
+        new SimpleMDE({
+            element: this,
+            // autoDownloadFontAwesome: false,
+            spellChecker: false
+        });
+
+    })
     $("#btnsave").click(function (event) {
-        var postData = {};
-        $.each($('#editorForm').serializeArray(), function(i, field) {
-            postData[field.name] = field.value;
-        });
-        postData["content"] = simplemde.value();
-        $.post('', postData, function () {
-            console.log("saved");
-        });
+        $("textarea.simplemde").each(function(){
+            var postData = {};
+            $.each($('#editorForm').serializeArray(), function (i, field) {
+                postData[field.name] = field.value;
+            });
+            postData["content"] = this.value();
+            $.post('', postData, function () {
+                console.log("saved");
+            });
+        })
         event.preventDefault();
     });
 });
