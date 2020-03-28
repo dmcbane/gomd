@@ -5,10 +5,6 @@ Cross-platform Markdown editor written in Go.
 - No internet connection needed though. It stays all on your computer.
 
 ## Installation
-### From binaries
-You can download the ready-to-use binaries on the [release page](https://github.com/nochso/gomd/releases) here on Github.
-
-### From source
     $ go get -u github.com/nochso/gomd
 
 ## Usage
@@ -18,16 +14,18 @@ Open an existing file and edit it:
 
 See the command line help for more:
 ```
-$ gomd --help
-usage: gomd [<flags>] [<file>]
+usage: gomd [<flags>] <file>
 
 Flags:
-      --help       Show context-sensitive help (also try --help-long and --help-man).
-  -p, --port=1110  Listening port used by webserver
-      --version    Show application version.
+      --help            Show context-sensitive help (also try --help-long and
+                        --help-man).
+  -a, --protocol=https  Application protocol (http or https) used by webserver
+  -p, --port=10101      Listening port used by webserver
+  -d, --daemon          Run in daemon mode (don't open browser)
+      --version         Show application version.
 
 Args:
-  [<file>]  Markdown file
+  <file>  Markdown file
 ```
 
 ## Changes
@@ -37,4 +35,6 @@ See the [CHANGELOG](CHANGELOG.md) for the full history of changes between releas
 This project is licensed under the MIT license. See the [LICENSE](LICENSE.md) file for the full license text.
 
 ## Credits
-* [SimpleMDE](https://github.com/NextStepWebs/simplemde-markdown-editor) - WYSIWYG*ish* MD editor written in JS
+* [SimpleMDE](https://github.com/sparksuite/simplemde-markdown-editor) - WYSIWYG*ish* MD editor written in JS
+* [gomd](https:github.com/nochso/gomd) - This is a fork of the original
+* [minica](https://github.com/jsha/minica) - A simple Certificate Authority (CA) used to generate the certificates used for TLS in https protocol.

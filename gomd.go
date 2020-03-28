@@ -27,8 +27,8 @@ type inputArgs struct {
 }
 
 var args = inputArgs{
-	Protocol: kingpin.Flag("protocol", "Application protocol (http or https) used by webserver").Short('a').Default("http").Enum("http", "https"),
-	Port:     kingpin.Flag("port", "Listening port used by webserver").Short('p').Default("1110").Int(),
+	Protocol: kingpin.Flag("protocol", "Application protocol (http or https) used by webserver").Short('a').Default("https").Enum("http", "https"),
+	Port:     kingpin.Flag("port", "Listening port used by webserver").Short('p').Default("10101").Int(),
 	File:     kingpin.Arg("file", "Markdown file").Required().String(),
 	Daemon:   kingpin.Flag("daemon", "Run in daemon mode (don't open browser)").Short('d').Default("false").Bool(),
 }
@@ -131,15 +131,7 @@ func editHandlerPost(c echo.Context) error {
 func waitForServer() {
 	log.Printf("Waiting for listener on port %d", *args.Port)
 	url := fmt.Sprintf("%s://localhost:%d/edit/%s", *args.Protocol, *args.Port, url.QueryEscape(*args.File))
-	for {
-		time.Sleep(time.Millisecond * 50)
-		resp, err := http.Get(url)
-		if err != nil {
-			continue
-		}
-		resp.Body.Close()
-		break
-	}
+	time.Sleep(time.Millisecond * 500)
 	log.Println("Opening " + url)
 	if err := webbrowser.Open(url); err != nil {
 		log.Printf("Possible error while opening browser: %s", err)
