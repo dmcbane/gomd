@@ -21,7 +21,6 @@ import (
 
 type inputArgs struct {
 	Protocol *string
-	Host     *string
 	Port     *int
 	File     *string
 	Daemon   *bool
@@ -29,7 +28,6 @@ type inputArgs struct {
 
 var args = inputArgs{
 	Protocol: kingpin.Flag("protocol", "Application protocol (http or https) used by webserver").Short('a').Default("http").Enum("http", "https"),
-	Host:     kingpin.Flag("host", "Host address used by webserver").Short('h').Default("localhost").String(),
 	Port:     kingpin.Flag("port", "Listening port used by webserver").Short('p').Default("1110").Int(),
 	File:     kingpin.Arg("file", "Markdown file").Required().String(),
 	Daemon:   kingpin.Flag("daemon", "Run in daemon mode (don't open browser)").Short('d').Default("false").Bool(),
@@ -80,7 +78,12 @@ func main() {
 		go waitForServer()
 	}
 
-	e.Logger.Fatal(e.Start(fmt.Sprintf("%s:%d", *args.Host, *args.Port)))
+	port := fmt.Sprintf(":%d", *args.Port)
+	if *args.Protocol == "http" {
+		e.Logger.Fatal(e.Start(port))
+	} else {
+		e.Logger.Fatal(e.StartTLS(port, "static/certs/cert.pem", "static/certs/key.pem"))
+	}
 }
 
 // Template Make the golint warning about no comment for exported struct go away
@@ -127,7 +130,7 @@ func editHandlerPost(c echo.Context) error {
 
 func waitForServer() {
 	log.Printf("Waiting for listener on port %d", *args.Port)
-	url := fmt.Sprintf("%s://%s:%d/edit/%s", *args.Protocol, *args.Host, *args.Port, url.QueryEscape(*args.File))
+	url := fmt.Sprintf("%s://localhost:%d/edit/%s", *args.Protocol, *args.Port, url.QueryEscape(*args.File))
 	for {
 		time.Sleep(time.Millisecond * 50)
 		resp, err := http.Get(url)
