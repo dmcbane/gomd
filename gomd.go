@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"io"
@@ -74,15 +75,34 @@ func main() {
 	edit.GET("/*", editHandler)
 	edit.POST("/*", editHandlerPost)
 
+	e.GET("/capublic", func(c echo.Context) error {
+		return c.Attachment("static/certs/minica.pem", "minica.pem")
+	})
+
+	// shutdown with 5 second delay
+	e.POST("/shutdown", func(c echo.Context) error {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		err := e.Shutdown(ctx)
+		if err != nil {
+			e.Logger.Fatal(err)
+		}
+		return c.HTML(http.StatusOK, "<strong>Shutting down...</strong>")
+	})
+
 	if !*args.Daemon {
 		go waitForServer()
 	}
 
 	port := fmt.Sprintf(":%d", *args.Port)
+	var serverr error
 	if *args.Protocol == "http" {
-		e.Logger.Fatal(e.Start(port))
+		serverr = e.Start(port)
 	} else {
-		e.Logger.Fatal(e.StartTLS(port, "static/certs/cert.pem", "static/certs/key.pem"))
+		serverr = e.StartTLS(port, "static/certs/cert.pem", "static/certs/key.pem")
+	}
+	if serverr != http.ErrServerClosed {
+		e.Logger.Fatal(serverr)
 	}
 }
 

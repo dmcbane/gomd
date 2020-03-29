@@ -7,17 +7,20 @@
     <title>gomd: {{.File}}</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/static/css/normalize.css">
+    <link rel="stylesheet" href="/static/css/normalize.min.css">
     <link rel="stylesheet" href="/static/css/font-awesome.min.css">
     <link rel="stylesheet" href="/static/css/simplemde.min.css">
+    <link rel="stylesheet" href="/static/css/stylesheet.css">
     <script src="/static/js/simplemde.min.js"></script>
     <script src="/static/js/jquery.min.js"></script>
 </head>
 <body>
-<form id="editorForm" method="post">
+<form class="editorForm" method="post">
     <textarea class="simplemde" name="content">{{.Content}}</textarea>
-    <button type="submit" id="btnsave">Save</button>
-    <select name="eol">
+
+    <button type="submit" class="btnsave">Save</button>
+    <button type="button" class="btnstop">Stop Server</button>
+    <select name="eol" class="eol">
         {{ $currentLineEnding := .CurrentLineEnding }}
         {{ range $index, $element := .LineEndings }}
         <option value="{{ $index }}"{{ if eq $index $currentLineEnding }} selected{{ end }}>{{ $element }}</option>
@@ -26,18 +29,10 @@
 </form>
 <script>
 $(document).ready(function () {
-    $("textarea.simplemde").each(function(){
-        new SimpleMDE({
-            element: this,
-            // autoDownloadFontAwesome: false,
-            spellChecker: false
-        });
-
-    })
-    $("#btnsave").click(function (event) {
+    $("button.btnsave").click(function (event) {
         $("textarea.simplemde").each(function(){
             var postData = {};
-            $.each($('#editorForm').serializeArray(), function (i, field) {
+            $.each($('.editorForm').serializeArray(), function (i, field) {
                 postData[field.name] = field.value;
             });
             postData["content"] = this.value();
@@ -47,8 +42,28 @@ $(document).ready(function () {
         })
         event.preventDefault();
     });
+    $("button.btnstop").click(function (event) {
+        $.post("/shutdown", { when: "now"}, function () {
+            console.log("shutdown");
+        })
+        return false;
+    });
+    $("textarea.simplemde").each(function(){
+        var simplemde = new SimpleMDE({
+            element: this,
+            autoDownloadFontAwesome: false,
+            spellChecker: false
+        });
+        simplemde.codemirror.on("change", function() {
+            $("button.btnstop").css("display", "none");
+        });
+    })
 });
 </script>
+<div class="hovershowContainer">
+    <hr>
+    <a class="hovershow" href="/capublic">CA Public Certificate (sha256: d2e2615895102013abf5cd04a7540abcaabab7a83cee679df9bdffd5a6313dc4)</a>
+</div>
 </body>
 </html>
 {{end}}
