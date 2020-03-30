@@ -13,11 +13,13 @@ import (
 	"time"
 
 	rice "github.com/GeertJohan/go.rice"
+	"github.com/dmcbane/gomd/eol"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"github.com/nochso/gomd/eol"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/toqueteos/webbrowser"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"gopkg.in/russross/blackfriday.v2"
 )
 
 type inputArgs struct {
@@ -75,20 +77,12 @@ func main() {
 	edit.GET("/*", editHandler)
 	edit.POST("/*", editHandlerPost)
 
-	e.GET("/capublic", func(c echo.Context) error {
-		return c.Attachment("static/certs/minica.pem", "minica.pem")
-	})
+	e.GET("/capublic", returnCaPublicCert)
 
 	// shutdown with 5 second delay
-	e.POST("/shutdown", func(c echo.Context) error {
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-		err := e.Shutdown(ctx)
-		if err != nil {
-			e.Logger.Fatal(err)
-		}
-		return c.HTML(http.StatusOK, "<strong>Shutting down...</strong>")
-	})
+	e.POST("/shutdown", shutdownWebServer)
+
+	e.POST("/mdtohtml", markdownToHTML)
 
 	if !*args.Daemon {
 		go waitForServer()
@@ -146,6 +140,27 @@ func editHandlerPost(c echo.Context) error {
 	ioutil.WriteFile(filepath, []byte(convertedContent), 0644)
 	c.Set("editorView", newEditorView(filepath, content))
 	return editHandler(c)
+}
+
+func markdownToHTML(c echo.Context) error {
+	content := []byte(c.FormValue("content"))
+	unsafe := blackfriday.Run(content)
+	html := string(bluemonday.UGCPolicy().SanitizeBytes(unsafe))
+	return c.HTML(http.StatusOK, html)
+}
+
+func returnCaPublicCert(c echo.Context) error {
+	return c.Attachment("static/certs/minica.pem", "minica.pem")
+}
+
+func shutdownWebServer(c echo.Context) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	err := c.Echo().Shutdown(ctx)
+	if err != nil {
+		c.Echo().Logger.Fatal(err)
+	}
+	return c.HTML(http.StatusOK, "<strong>Shutting down...</strong>")
 }
 
 func waitForServer() {

@@ -7,16 +7,19 @@
     <title>gomd: {{.File}}</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/static/css/normalize.min.css">
-    <link rel="stylesheet" href="/static/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/static/css/simplemde.min.css">
+    <link rel="stylesheet" href="/static/css/normalize.css">
+    <link href="/static/bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/bower_components/bootstrap-markdown-editor/dist/css/bootstrap-markdown-editor.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/stylesheet.css">
-    <script src="/static/js/simplemde.min.js"></script>
-    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="/static/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/static/bower_components/ace-builds/src-min/ace.js"></script>
+    <script src="/static/bower_components/bootstrap-markdown-editor/dist/js/bootstrap-markdown-editor.js"></script> 
 </head>
 <body>
 <form class="editorForm" method="post">
-    <textarea class="simplemde" name="content">{{.Content}}</textarea>
+    <h1>{{.File}}</h1>
+    <textarea class="markdown" name="content">{{.Content}}</textarea>
 
     <button type="submit" class="btnsave">Save</button>
     <button type="button" class="btnstop">Stop Server</button>
@@ -30,16 +33,9 @@
 <script>
 $(document).ready(function () {
     $("button.btnsave").click(function (event) {
-        $("textarea.simplemde").each(function(){
-            var postData = {};
-            $.each($('.editorForm').serializeArray(), function (i, field) {
-                postData[field.name] = field.value;
-            });
-            postData["content"] = this.value();
-            $.post('', postData, function () {
-                console.log("saved");
-            });
-        })
+        $.post('', $("textarea.markdown").markdownEditor('content'), function () {
+            console.log("saved");
+        });
         event.preventDefault();
     });
     $("button.btnstop").click(function (event) {
@@ -48,16 +44,27 @@ $(document).ready(function () {
         })
         return false;
     });
-    $("textarea.simplemde").each(function(){
-        var simplemde = new SimpleMDE({
-            element: this,
-            autoDownloadFontAwesome: false,
-            spellChecker: false
-        });
-        simplemde.codemirror.on("change", function() {
-            $("button.btnstop").css("display", "none");
-        });
-    })
+    $('textarea.markdown').markdownEditor({
+        theme: 'chaos',
+        // Activate the preview:
+        preview: true,
+        // This callback is called when the user click on the preview button:
+        onPreview: function (content, callback) {
+
+            // Example of implementation with ajax:
+            $.ajax({
+                url: 'mdtohtml',
+                type: 'POST',
+                dataType: 'html',
+                data: {content: $("textarea.markdown").markdownEditor('content')},
+            })
+            .done(function(result) {
+                // Return the html:
+                callback(result);
+            });
+
+        }
+    });
 });
 </script>
 <div class="hovershowContainer">
