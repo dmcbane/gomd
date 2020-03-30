@@ -7,12 +7,11 @@
     <title>gomd: {{.File}}</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/static/css/normalize.min.css">
-    <link rel="stylesheet" href="/static/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/static/css/simplemde.min.css">
+    <link rel="stylesheet" href="/static/css/normalize.css">
     <link rel="stylesheet" href="/static/css/stylesheet.css">
-    <script src="/static/js/simplemde.min.js"></script>
     <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/node_modules/markdown-it/dist/markdown-it.min.js"></script>
+    <script src="/static/node_modules/markdown-it-multimd-table/dist/markdown-it-multimd-table.min.js"></script>
 </head>
 <body>
 <form class="editorForm" method="post">
@@ -48,16 +47,9 @@ $(document).ready(function () {
         })
         return false;
     });
-    $("textarea.simplemde").each(function(){
-        var simplemde = new SimpleMDE({
-            element: this,
-            autoDownloadFontAwesome: false,
-            spellChecker: false
-        });
-        simplemde.codemirror.on("change", function() {
-            $("button.btnstop").css("display", "none");
-        });
-    })
+    var md = window.markdownit().use(window.markdown-it-multimd-table, {
+        multiline: true, rowspan: true, headerless: true });
+    }
 });
 </script>
 <div class="hovershowContainer">
