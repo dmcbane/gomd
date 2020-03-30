@@ -7,16 +7,17 @@
     <title>gomd: {{.File}}</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/static/css/normalize.min.css">
-    <link rel="stylesheet" href="/static/css/font-awesome.min.css">
-    <link rel="stylesheet" href="/static/css/simplemde.min.css">
+    <link rel="stylesheet" href="/static/css/normalize.css">
+    <link rel="stylesheet" href="/static/css/editor.css">
     <link rel="stylesheet" href="/static/css/stylesheet.css">
-    <script src="/static/js/simplemde.min.js"></script>
     <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/marked.js"></script>
+    <script src="/static/js/editor.js"></script>
 </head>
 <body>
 <form class="editorForm" method="post">
-    <textarea class="simplemde" name="content">{{.Content}}</textarea>
+    <input class="title" type="text" placeholder="Title" /> 
+    <textarea class="markdowneditor" name="content">{{.Content}}</textarea>
 
     <button type="submit" class="btnsave">Save</button>
     <button type="button" class="btnstop">Stop Server</button>
@@ -30,7 +31,7 @@
 <script>
 $(document).ready(function () {
     $("button.btnsave").click(function (event) {
-        $("textarea.simplemde").each(function(){
+        $("textarea.markdowneditor").each(function(){
             var postData = {};
             $.each($('.editorForm').serializeArray(), function (i, field) {
                 postData[field.name] = field.value;
@@ -48,13 +49,11 @@ $(document).ready(function () {
         })
         return false;
     });
-    $("textarea.simplemde").each(function(){
-        var simplemde = new SimpleMDE({
-            element: this,
-            autoDownloadFontAwesome: false,
-            spellChecker: false
+    $("textarea.markdowneditor").each(function(){
+        var mde = new window.Editor({
+            element: this
         });
-        simplemde.codemirror.on("change", function() {
+        mde.codemirror.on("change", function() {
             $("button.btnstop").css("display", "none");
         });
     })
