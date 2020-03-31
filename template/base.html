@@ -20,7 +20,7 @@
 <body>
 <form class="editorForm" method="post">
     <div class="editor-wrapper">
-        <input class="title" type="text" placeholder="Title" /> 
+        <input class="title" type="text" placeholder="Title" value="{{.File}}"> 
         <textarea class="markdowneditor" name="content" placeholder="Content here...">{{.Content}}</textarea>
         <button type="submit" class="btnsave">Save</button>
         <button type="button" class="btnstop">Stop Server</button>

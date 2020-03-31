@@ -23,14 +23,14 @@ import (
 type inputArgs struct {
 	Protocol *string
 	Port     *int
-	File     *string
+	Files    *[]string
 	Daemon   *bool
 }
 
 var args = inputArgs{
 	Protocol: kingpin.Flag("protocol", "Application protocol (http or https) used by webserver").Short('a').Default("https").Enum("http", "https"),
 	Port:     kingpin.Flag("port", "Listening port used by webserver").Short('p').Default("10101").Int(),
-	File:     kingpin.Arg("file", "Markdown file").Required().String(),
+	Files:    kingpin.Arg("files", "Markdown file(s)").Required().Strings(),
 	Daemon:   kingpin.Flag("daemon", "Run in daemon mode (don't open browser)").Short('d').Default("false").Bool(),
 }
 
@@ -135,7 +135,7 @@ func editHandler(c echo.Context) error {
 }
 
 func editHandlerPost(c echo.Context) error {
-	filepath := *args.File
+	filepath := c.Param("*")
 	eolIndex, _ := strconv.Atoi(c.FormValue("eol"))
 	content := c.FormValue("content")
 	convertedContent, err := eol.LineEnding(eolIndex).Apply(content)
@@ -150,10 +150,12 @@ func editHandlerPost(c echo.Context) error {
 
 func waitForServer() {
 	log.Printf("Waiting for listener on port %d", *args.Port)
-	url := fmt.Sprintf("%s://localhost:%d/edit/%s", *args.Protocol, *args.Port, url.QueryEscape(*args.File))
-	time.Sleep(time.Millisecond * 500)
-	log.Println("Opening " + url)
-	if err := webbrowser.Open(url); err != nil {
-		log.Printf("Possible error while opening browser: %s", err)
+	for _, file := range *args.Files {
+		url := fmt.Sprintf("%s://localhost:%d/edit/%s", *args.Protocol, *args.Port, url.QueryEscape(file))
+		time.Sleep(time.Millisecond * 500)
+		log.Println("Opening " + url)
+		if err := webbrowser.Open(url); err != nil {
+			log.Printf("Possible error while opening browser: %s", err)
+		}
 	}
 }
