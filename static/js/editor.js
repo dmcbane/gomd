@@ -6094,11 +6094,11 @@ CodeMirror.defineMode("xml", function(config, parserConfig) {
     };
   }
   function endclosetag(err) {
-    return function(type) {
+    return function ect(type) {
       if (err) setStyle = "error";
       if (type == "endTag") { popContext(); return cont(); }
       setStyle = "error";
-      return cont(arguments.callee);
+      return cont(ect);
     };
   }
   function maybePopContext(nextTagName) {
