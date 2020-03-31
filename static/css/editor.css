@@ -1,44 +1,14 @@
 @font-face {
   font-family: 'icomoon';
-  src: url('fonts/icomoon.eot?vn9cvz'); /* IE9 */
-  src: url('fonts/icomoon.eot?vn9cvz#iefix') format('embedded-opentype'), /* IE6-IE8 */
-  url('fonts/icomoon.ttf?vn9cvz') format('truetype'), /* chrome-firefox-opera-Safari, Android, iOS 4.2+ */
-  url('fonts/icomoon.woff?vn9cvz') format('woff'), /* chrome-firefox */
-  url('fonts/icomoon.svg?vn9cvz#icomoon') format('svg'); /* iOS 4.1- */
+  src: url('../fonts/icomoon.eot?vn9cvz'); /* IE9 */
+  src: url('../fonts/icomoon.eot?vn9cvz#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('../fonts/icomoon.ttf?vn9cvz') format('truetype'), /* chrome-firefox-opera-Safari, Android, iOS 4.2+ */
+  url('../fonts/icomoon.woff?vn9cvz') format('woff'), /* chrome-firefox */
+  url('../fonts/icomoon.svg?vn9cvz#icomoon') format('svg'); /* iOS 4.1- */
   font-weight: normal;
   font-style: normal;
   font-display: block;
 }
-
-/* Use the following CSS code if you want to use data attributes for inserting your icons
-[data-icon]:before {
-  font-family: 'icomoon' !important;
-  content: attr(data-icon);
-  speak: none;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-} */
-
-/* Use the following CSS code if you want to have a class per icon */
-
-/*
-Instead of a list of all class selectors,
-you can use the generic selector below, but it's slower:
-[class*="icon-"] {
-  .icon-bold, .icon-italic, .icon-quote, .icon-unordered-list, .icon-ordered-list, .icon-link, .icon-image, .icon-play, .icon-music, .icon-contract, .icon-fullscreen, .icon-question, .icon-info, .icon-undo, .icon-redo, .icon-code, .icon-preview {
-    font-family: 'icomoon' !important;
-    speak: none;
-    font-style: normal;
-    font-weight: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-  }
- */
 
 [class^="icon-"], [class*=" icon-"] {
 
@@ -485,13 +455,13 @@ flickering artifacts. */
 }
 
 .editor-wrapper {
-  font: 16px/1.62 "Helvetica Neue", "Xin Gothic", "Hiragino Sans GB", "WenQuanYi Micro Hei", "Microsoft YaHei", sans-serif;
+  font-size: 1em;
   color: #2c3e50;
 }
 
 /* this is the title */
 .editor-wrapper input.title {
-  font: 18px "Helvetica Neue", "Xin Gothic", "Hiragino Sans GB", "WenQuanYi Micro Hei", "Microsoft YaHei", sans-serif;
+  font-size: 1.5em;
   background: transparent;
   padding: 4px;
   width: 100%;
@@ -573,7 +543,7 @@ flickering artifacts. */
 .editor-statusbar {
   border-top: 1px solid #ece9e9;
   padding: 8px 10px;
-  font-size: 12px;
+  font-size: 0.75em;
   color: #959694;
   text-align: right;
 }

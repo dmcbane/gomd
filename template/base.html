@@ -7,26 +7,30 @@
     <title>gomd: {{.File}}</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="icon" 
+         type="image/svg+xml" 
+         href="/static/icon/icon.svg"> 
     <link rel="stylesheet" href="/static/css/normalize.css">
-    <link rel="stylesheet" href="/static/css/editor.css">
     <link rel="stylesheet" href="/static/css/stylesheet.css">
+    <link rel="stylesheet" href="/static/css/editor.css">
     <script src="/static/js/jquery.min.js"></script>
     <script src="/static/js/marked.js"></script>
     <script src="/static/js/editor.js"></script>
 </head>
 <body>
 <form class="editorForm" method="post">
-    <input class="title" type="text" placeholder="Title" /> 
-    <textarea class="markdowneditor" name="content">{{.Content}}</textarea>
-
-    <button type="submit" class="btnsave">Save</button>
-    <button type="button" class="btnstop">Stop Server</button>
-    <select name="eol" class="eol">
-        {{ $currentLineEnding := .CurrentLineEnding }}
-        {{ range $index, $element := .LineEndings }}
-        <option value="{{ $index }}"{{ if eq $index $currentLineEnding }} selected{{ end }}>{{ $element }}</option>
-        {{ end }}
-    </select>
+    <div class="editor-wrapper">
+        <input class="title" type="text" placeholder="Title" /> 
+        <textarea class="markdowneditor" name="content" placeholder="Content here...">{{.Content}}</textarea>
+        <button type="submit" class="btnsave">Save</button>
+        <button type="button" class="btnstop">Stop Server</button>
+        <select name="eol" class="eol">
+            {{ $currentLineEnding := .CurrentLineEnding }}
+            {{ range $index, $element := .LineEndings }}
+            <option value="{{ $index }}"{{ if eq $index $currentLineEnding }} selected{{ end }}>{{ $element }}</option>
+            {{ end }}
+        </select>
+    </div>
 </form>
 <script>
 $(document).ready(function () {
