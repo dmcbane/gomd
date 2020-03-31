@@ -5,3 +5,4 @@
 * Document icomoon process
 * Minimize CSS files as they become stable.
 * Use go-rice FindBox/MustFindBox for static folder
+* Add syntax highlighting with highlightjs.org
