@@ -4,3 +4,4 @@
 * Embed the certificates for SSL
 * Document icomoon process
 * Minimize CSS files as they become stable.
+* Use go-rice FindBox/MustFindBox for static folder
